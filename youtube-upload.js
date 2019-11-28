@@ -119,8 +119,7 @@ function uploadVideo(auth) {
       notifySubscribers: false,
       requestBody: {
         snippet: {
-          title: 'Node.js test',
-          description: 'test'
+          title: fileName
         },
         status: {
           privacyStatus: 'unlisted' // private or public
