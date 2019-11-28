@@ -98,6 +98,10 @@ function storeToken(token) {
   });
 }
 
+const fileNames = [
+  "video.mp4"
+]
+
 /**
  * Lists the names and IDs of up to 10 files.
  *
@@ -106,32 +110,33 @@ function storeToken(token) {
 function uploadVideo(auth) {
   var service = google.youtube('v3')
 
-  const fileName = "video.mp4"
-  const fileSize = fs.statSync(fileName).size
+  fileNames.forEach(async (fileName) => {
+    const fileSize = fs.statSync(fileName).size
 
-  service.videos.insert({
-    auth: auth,
-    part: 'id,snippet,status',
-    notifySubscribers: false,
-    requestBody: {
-      snippet: {
-        title: 'Node.js test',
-        description: 'test'
+    const res = await service.videos.insert({
+      auth: auth,
+      part: 'id,snippet,status',
+      notifySubscribers: false,
+      requestBody: {
+        snippet: {
+          title: 'Node.js test',
+          description: 'test'
+        },
+        status: {
+          privacyStatus: 'unlisted' // private or public
+        }
       },
-      status: {
-        privacyStatus: 'private'
+      media: {
+        body: fs.createReadStream(fileName)
       }
     },
-    media: {
-      body: fs.createReadStream("video.mp4")
-    }
-  },
-  {
-    onUploadProgress: evt => {
-      const progress = (evt.bytesRead / fileSize) * 100
-      process.stdout.write(`${Math.round(progress)}% complete\r\n`)
-    }
+    {
+      onUploadProgress: evt => {
+        const progress = (evt.bytesRead / fileSize) * 100
+        process.stdout.write(`${Math.round(progress)}% complete\r\n`)
+      }
+    })
+
+    console.log(res)
   })
-    .then(data => console.log(data))
-    .catch(err => console.error(err))
 }
